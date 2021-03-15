@@ -65,6 +65,9 @@ def suggest_news():
             and
             is_new = 1
         ''')
+        if fresh_news.empty:
+            print('Done!')
+            return
         news_id = suggester(fresh_news, user_id)
         suggest_q = f"insert into suggested_news (user_id, news_id, timestamp) values ('{user_id}', {news_id}, datetime('now'))"
         db.insert_query(suggest_q)
