@@ -37,7 +37,8 @@ create table users
         primary key,
     rated INTEGER default 0,
     is_new INTEGER default 1,
-    is_admin INTEGER default 0
+    is_admin INTEGER default 0,
+    notify INTEGER default 1
 );
 
 create table suggested_news (
