@@ -6,9 +6,9 @@ if __name__ == '__main__':
     save_news()
     suggest_news()
     # prod
-    # schedule.every(10).minutes.do(save_news)
-    # schedule.every(20).minutes.do(suggest_news)
+    schedule.every(10).minutes.do(save_news)
+    schedule.every(20).minutes.do(suggest_news)
     
-    # while True:
-    #     schedule.run_pending()
-    #     time.sleep(10)
+    while True:
+        schedule.run_pending()
+        time.sleep(10)

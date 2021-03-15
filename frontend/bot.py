@@ -129,7 +129,7 @@ if __name__ == '__main__':
     # print(dp.loop)
     # print('fff')
     loop = asyncio.get_event_loop()
-    loop.create_task(periodic(1))
+    loop.create_task(periodic(60))
     # dp.loop.create_task(periodic)
     # dp.loop.create_task(periodic(1))
     executor.start_polling(dp)
