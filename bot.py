@@ -30,19 +30,23 @@ scores = {
 }
 
 
-async def send_news(user_id, news_id, title, description, link, img_link):
+
+
+async def send_news(user_id, news_id, title, description, link, img_link, reply_keyboard=True):
     if db.is_notify(user_id):
         score_keyboard = InlineKeyboardMarkup(
             inline_keyboard=[[InlineKeyboardButton(smile, callback_data=f'score {score} {news_id}') for score, smile in scores.items()]]
         )
+        
         try:
-            await bot.send_photo(
+            msg = await bot.send_photo(
                 user_id, 
                 img_link,
                 caption=f'\n*{title}*\n\n{description}\n\n[продолжить]({link})',
                 parse_mode='markdown',
                 reply_markup=score_keyboard
             )
+            # print(msg.)
         except BotBlocked as e:
             return
 
@@ -76,7 +80,7 @@ async def process_start_command(message: types.Message):
     user_id = message.from_user.id
     if not db.is_exist(user_id):
         print(f'New user!! {user_id}')
-        await message.answer(f'*Добро пожаловать {message.from_user.first_name} в NewsTHXBot!* Я буду присылать тебе новости с разных ресурсов, чтобы ты не скучал 😊', parse_mode='markdown')
+        await message.answer(f'*Добро пожаловать {message.from_user.first_name} в NewsTHXBot!*\nЯ буду присылать тебе новости с разных ресурсов, чтобы ты не скучал 😊', parse_mode='markdown')
         await message.answer(help_msg, parse_mode='markdown')
         db.add_user(
             user_id=user_id, 
@@ -118,14 +122,14 @@ async def process_news_command(message: types.Message):
 
 @dp.callback_query_handler(lambda c: c.data.split()[0] == 'score')
 async def process_callback_score(callback_query: types.CallbackQuery):
-    
     score = int(callback_query.data.split()[1])
     news_id = int(callback_query.data.split()[2])
     user_id = callback_query.from_user.id
 
+    await bot.edit_message_reply_markup(user_id, callback_query.message.message_id)
+
     if not db.is_scored(user_id, news_id):
         print(callback_query.data)
-        await bot.send_message(callback_query.from_user.id, f'Запомнил {scores[score]}')
     db.update_score(user_id, news_id, score)
 
     await bot.answer_callback_query(callback_query.id)

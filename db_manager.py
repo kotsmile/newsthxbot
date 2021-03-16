@@ -118,6 +118,9 @@ class Database:
 
     def get_users(self):
         return self.select_query('select id from users')
+
+    def get_news(self, news_id):
+        return self.select_query(f'select * from news where id = {news_id}').iloc[0]
     
     def suggest_news(self, user_id, news_id):
         self.insert_query(f"insert into suggested_news (user_id, news_id, timestamp) values ({user_id}, {news_id}, datetime('now'))")
@@ -130,6 +133,7 @@ class Database:
             and
             is_new = 1
         ''')
+
 
     def update_score(self, user_id, news_id, score):
         if not self.is_scored(user_id, news_id):
