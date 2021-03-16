@@ -62,6 +62,10 @@ async def pin_news():
             img_link=news['img_link']
         )
 
+# async def check_user(user_id):
+#     if not db.is_exist(user_id):
+#         await bot.send_message(user_id, '''*Я тебя не знаю 😔*, давай познакомимся /start''', parse_mode='markdown')
+
 
 @dp.message_handler(commands=['start'])
 async def process_start_command(message: types.Message):
@@ -76,13 +80,12 @@ async def process_start_command(message: types.Message):
             first_name=message.from_user.first_name,
             last_name=message.from_user.last_name
         )
-    else:
-        await message.answer('Я тебя уже знаю 😊', parse_mode='markdown')
 
 
 
 @dp.message_handler(commands=['help'])
 async def process_help_command(message: types.Message):
+    await process_start_command(message)
     await message.answer('''*Вот, что я умею*
 - /notify - выключить/включить меня 
         ''', parse_mode='markdown')
@@ -90,6 +93,7 @@ async def process_help_command(message: types.Message):
 
 @dp.message_handler(commands=['notify'])
 async def process_notify_command(message: types.Message):
+    await process_start_command(message)
     user_id = message.from_user.id
     if db.is_notify(user_id):
         await message.answer('Теперь я не буду присылать тебе сообщения 😔')
@@ -103,6 +107,7 @@ async def process_notify_command(message: types.Message):
 
 @dp.message_handler(commands=['news'])
 async def process_news_command(message: types.Message):
+    await process_start_command(message)
     user_id = message.from_user.id
     if db.is_admin(user_id):
         print(message.from_user.username)
@@ -113,7 +118,7 @@ async def process_news_command(message: types.Message):
 
 @dp.callback_query_handler(lambda c: c.data.split()[0] == 'score')
 async def process_callback_score(callback_query: types.CallbackQuery):
-
+    
     score = int(callback_query.data.split()[1])
     news_id = int(callback_query.data.split()[2])
     user_id = callback_query.from_user.id
@@ -127,6 +132,7 @@ async def process_callback_score(callback_query: types.CallbackQuery):
 
 @dp.message_handler(commands=['admin'])
 async def echo_message(message: types.Message):
+    await process_start_command(message)
     user_id = message.from_user.id
     if db.is_admin(user_id):
         await message.answer('ADMIN PANEL', parse_mode='markdown')
@@ -135,8 +141,9 @@ async def echo_message(message: types.Message):
 
 
 @dp.message_handler()
-async def echo_message(msg: types.Message):
-    await bot.send_message(msg.from_user.id, 'Я не понимаю 😔')
+async def echo_message(message: types.Message):
+    await process_start_command(message)
+    await bot.send_message(message.from_user.id, 'Я не понимаю 😔')
 
 
 async def periodic(sleep_for):
