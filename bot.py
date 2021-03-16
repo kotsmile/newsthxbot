@@ -67,13 +67,17 @@ async def pin_news():
 #         await bot.send_message(user_id, '''*Я тебя не знаю 😔*, давай познакомимся /start''', parse_mode='markdown')
 
 
+help_msg = '''\t*Вот, что я умею*
+- /notify - выключить/включить меня '''
+
+
 @dp.message_handler(commands=['start'])
 async def process_start_command(message: types.Message):
     user_id = message.from_user.id
     if not db.is_exist(user_id):
         print(f'New user!! {user_id}')
         await message.answer(f'*Добро пожаловать {message.from_user.first_name} в NewsTHXBot!* Я буду присылать тебе новости с разных ресурсов, чтобы ты не скучал 😊', parse_mode='markdown')
-        await process_help_command(message)
+        await message.answer(help_msg, parse_mode='markdown')
         db.add_user(
             user_id=user_id, 
             username=message.from_user.username, 
@@ -81,14 +85,10 @@ async def process_start_command(message: types.Message):
             last_name=message.from_user.last_name
         )
 
-
-
 @dp.message_handler(commands=['help'])
 async def process_help_command(message: types.Message):
     await process_start_command(message)
-    await message.answer('''*Вот, что я умею*
-- /notify - выключить/включить меня 
-        ''', parse_mode='markdown')
+    await message.answer(help_msg, parse_mode='markdown')
 
 
 @dp.message_handler(commands=['notify'])
