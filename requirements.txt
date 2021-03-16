@@ -2,10 +2,7 @@ aiogram
 aiohttp
 async-timeout
 attrs
-Babel
-certifi
 chardet
-idna
 multidict
 numpy
 pandas
@@ -14,3 +11,12 @@ pytz
 six
 typing-extensions
 yarl
+certifi
+idna
+protobuf
+python-dateutil
+requests
+schedule
+sgmllib3k
+urllib3
+
