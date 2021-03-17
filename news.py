@@ -63,7 +63,6 @@ def suggest_news():
         if fresh_news.empty:
             print('Done!')
             return
-        
         news_id = suggester(fresh_news, user_id)
         db.suggest_news(user_id, news_id)
         
