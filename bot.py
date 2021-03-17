@@ -10,7 +10,7 @@ import datetime
 
 from db_manager import Database
 from config import creds_path, db_path, start_work, stop_work
-from news import suggest_news_user, suggest_news
+from news import suggest_news_user, suggest_news, save_news
 
 
 def load_json(path):
@@ -129,8 +129,15 @@ async def process_notify_command(message: types.Message):
     elif db.is_exist(user_id):
         await message.answer('Теперь я буду всегда рядом 😊')
         db.set_notify(user_id, 1)
-    
 
+@dp.message_handler(commands=['news'])
+async def process_news_command(message: types.Message):
+    await process_start_command(message)
+    user_id = message.from_user.id
+    save_news()
+    suggest_news_user(user_id)
+    await pin_news_user(user_id)
+    
 
 # admin commands
 
@@ -156,17 +163,13 @@ async def process_news_command(message: types.Message):
     await process_start_command(message)
     user_id = message.from_user.id
     if db.is_admin(user_id):
+        save_news()
         suggest_news()
         await pin_news()
         await message.answer('Suggest and send news')
 
 
-@dp.message_handler(commands=['news'])
-async def process_news_command(message: types.Message):
-    await process_start_command(message)
-    user_id = message.from_user.id
-    suggest_news_user(user_id)
-    await pin_news_user(user_id)
+
 
 
 @dp.message_handler(commands=['admin'])
