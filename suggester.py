@@ -7,7 +7,9 @@ from config import start_work, stop_work
 
 
 if __name__ == '__main__':
+    print('try to add news')
     if stop_work > datetime.datetime.now().time() > start_work:
+        print('adding news')
         save_news()
         suggest_news()
         # prod

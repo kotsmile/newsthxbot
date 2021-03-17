@@ -154,6 +154,7 @@ async def echo_message(message: types.Message):
 
 async def periodic(sleep_for):
     while True:
+        print('try to pin')
         if stop_work > datetime.datetime.now().time() > start_work:
             print('pinning')
             await asyncio.sleep(sleep_for)
