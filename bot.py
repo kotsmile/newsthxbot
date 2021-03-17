@@ -10,6 +10,7 @@ import datetime
 
 from db_manager import Database
 from config import creds_path, db_path, start_work, stop_work
+from news import suggest_news_user
 
 
 def load_json(path):
@@ -52,21 +53,24 @@ async def send_news(user_id, news_id, title, description, link, img_link, reply_
             print(news_id, 'bad img url')
         
 
+async def pin_news_user(user_id):
+    news = db.get_fresh_news(user_id)
+    if news.empty:
+        return
+    await send_news(
+        user_id=user_id,
+        news_id=news['id'],
+        title=news['title'],
+        description=news['description'],
+        link=news['link'],
+        img_link=news['img_link']
+    )
 
 async def pin_news():
     users_df = db.get_users()
     for user_id in users_df['id']:
-        news = db.get_fresh_news(user_id)
-        if news.empty:
-            continue
-        await send_news(
-            user_id=user_id,
-            news_id=news['id'],
-            title=news['title'],
-            description=news['description'],
-            link=news['link'],
-            img_link=news['img_link']
-        )
+        await pin_news_user(user_id)
+
 
 # async def check_user(user_id):
 #     if not db.is_exist(user_id):
@@ -74,7 +78,9 @@ async def pin_news():
 
 
 help_msg = '''\t*Вот, что я умею*
-- /notify - выключить/включить меня '''
+- /help - помогу тебе
+- /notify - выключить/включить меня 
+- /news - пришлю новость специально для тебя'''
 
 
 @dp.message_handler(commands=['start'])
@@ -111,15 +117,19 @@ async def process_notify_command(message: types.Message):
 
 
 
-@dp.message_handler(commands=['news'])
+@dp.message_handler(commands=['all_news'])
 async def process_news_command(message: types.Message):
     await process_start_command(message)
     user_id = message.from_user.id
     if db.is_admin(user_id):
-        print(message.from_user.username)
-        print(message.from_user.first_name)
-        print(message.from_user.last_name)
         await pin_news()
+
+@dp.message_handler(commands=['news'])
+async def process_news_command(message: types.Message):
+    await process_start_command(message)
+    user_id = message.from_user.id
+    suggest_news_user(user_id)
+    await pin_news_user(user_id)
 
 
 @dp.callback_query_handler(lambda c: c.data.split()[0] == 'score')

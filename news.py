@@ -69,6 +69,16 @@ def suggest_news():
     print('Done')
 
 
+def suggest_news_user(user_id):
+    db = Database(db_path)
+    fresh_news = db.get_fresh_news_for_user(user_id)
+    if fresh_news.empty:
+        print('Done!')
+        return
+    news_id = suggester(fresh_news, user_id)
+    db.suggest_news(user_id, news_id)
+        
+
 def save_news():
     print('Start dumping')
     news_df = dump_all(boards_path)
