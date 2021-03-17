@@ -1,7 +1,7 @@
 from aiogram import Bot, types
 from aiogram.dispatcher import Dispatcher
 from aiogram.utils import executor
-from aiogram.utils.exceptions import BotBlocked
+from aiogram.utils.exceptions import BotBlocked, BadRequest
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, user
 
 import asyncio
@@ -46,9 +46,11 @@ async def send_news(user_id, news_id, title, description, link, img_link, reply_
                 parse_mode='markdown',
                 reply_markup=score_keyboard
             )
-            # print(msg.)
         except BotBlocked as e:
-            return
+            print(user_id, 'blocked me') # add to table mb
+        except BadRequest as e:
+            print(news_id, 'bad img url')
+        
 
 
 async def pin_news():
