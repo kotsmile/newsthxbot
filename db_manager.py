@@ -107,6 +107,9 @@ class Database:
     def set_notify(self, user_id, notify):
         self.insert_query(f'update users set notify = {notify} where id = {user_id}')
 
+    def set_all_news_seen(self):
+        self.insert_query(f'update suggested_news set seen = 1')
+
     def to_admin(self, user_id):
         self.insert_query(f'update users set is_admin = 1 where id = {user_id}')
 

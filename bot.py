@@ -10,7 +10,7 @@ import datetime
 
 from db_manager import Database
 from config import creds_path, db_path, start_work, stop_work
-from news import suggest_news_user
+from news import suggest_news_user, suggest_news
 
 
 def load_json(path):
@@ -82,6 +82,17 @@ help_msg = '''\t*Вот, что я умею*
 - /notify - выключить/включить меня 
 - /news - пришлю новость специально для тебя'''
 
+admin_help_msg = '''\t*Вот, что я умею*
+- /help - помогу тебе
+- /notify - выключить/включить меня 
+- /news - пришлю новость специально для тебя
+ADMIN
+- /pin - пришлю всем свежую новость
+- /allnews - пришлю новость всем
+- /admin - сколько нас
+- /remove - удалю все новые новости'''
+
+# user commands
 
 @dp.message_handler(commands=['start'])
 async def process_start_command(message: types.Message):
@@ -100,7 +111,12 @@ async def process_start_command(message: types.Message):
 @dp.message_handler(commands=['help'])
 async def process_help_command(message: types.Message):
     await process_start_command(message)
-    await message.answer(help_msg, parse_mode='markdown')
+
+    user_id = message.from_user.id
+    if db.is_admin(user_id):
+        await message.answer(admin_help_msg, parse_mode='markdown')
+    else:
+        await message.answer(help_msg, parse_mode='markdown')
 
 
 @dp.message_handler(commands=['notify'])
@@ -116,13 +132,34 @@ async def process_notify_command(message: types.Message):
     
 
 
+# admin commands
 
-@dp.message_handler(commands=['all_news'])
-async def process_news_command(message: types.Message):
+@dp.message_handler(commands=['pin'])
+async def process_all_news_command(message: types.Message):
     await process_start_command(message)
     user_id = message.from_user.id
     if db.is_admin(user_id):
         await pin_news()
+        await message.answer('Send news to everybody')
+
+@dp.message_handler(commands=['remove'])
+async def process_remove_command(message: types.Message):
+    await process_start_command(message)
+
+    user_id = message.from_user.id
+    if db.is_admin(user_id):
+        db.set_all_news_seen()
+        await message.answer('Set all news "seen"')
+
+@dp.message_handler(commands=['allnews'])
+async def process_news_command(message: types.Message):
+    await process_start_command(message)
+    user_id = message.from_user.id
+    if db.is_admin(user_id):
+        suggest_news()
+        await pin_news()
+        await message.answer('Suggest and send news')
+
 
 @dp.message_handler(commands=['news'])
 async def process_news_command(message: types.Message):
@@ -131,6 +168,17 @@ async def process_news_command(message: types.Message):
     suggest_news_user(user_id)
     await pin_news_user(user_id)
 
+
+@dp.message_handler(commands=['admin'])
+async def echo_message(message: types.Message):
+    await process_start_command(message)
+    user_id = message.from_user.id
+    if db.is_admin(user_id):
+        await message.answer('ADMIN PANEL', parse_mode='markdown')
+        amount_of_users = db.select_query('select count(*) from users').iloc[0][0]
+        await message.answer(f'amount: {amount_of_users}', parse_mode='markdown')
+
+# callbacks
 
 @dp.callback_query_handler(lambda c: c.data.split()[0] == 'score')
 async def process_callback_score(callback_query: types.CallbackQuery):
@@ -146,15 +194,8 @@ async def process_callback_score(callback_query: types.CallbackQuery):
 
     await bot.answer_callback_query(callback_query.id)
 
-@dp.message_handler(commands=['admin'])
-async def echo_message(message: types.Message):
-    await process_start_command(message)
-    user_id = message.from_user.id
-    if db.is_admin(user_id):
-        await message.answer('ADMIN PANEL', parse_mode='markdown')
-        amount_of_users = db.select_query('select count(*) from users').iloc[0][0]
-        await message.answer(f'amount: {amount_of_users}', parse_mode='markdown')
 
+# garbege
 
 @dp.message_handler()
 async def echo_message(message: types.Message):
