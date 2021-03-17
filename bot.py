@@ -157,8 +157,8 @@ async def periodic(sleep_for):
         print('try to pin')
         if stop_work > datetime.datetime.now().time() > start_work:
             print('pinning')
-            await asyncio.sleep(sleep_for)
             await pin_news()
+        await asyncio.sleep(sleep_for)
 
 if __name__ == '__main__':
 
