@@ -2,8 +2,9 @@ from news import suggest_news, save_news
 import schedule
 import time
 import datetime
+import json
 
-from config import start_work, stop_work
+from config import start_work, stop_work, params_path
 
 def suggester():
     print('try to suggest news')
@@ -17,9 +18,10 @@ def saver():
         save_news()
 
 if __name__ == '__main__':
+    every_mins = json.load(open(params_path, 'r'))['every']
     print('Start')
     schedule.every(10).minutes.do(saver)
-    schedule.every(20).minutes.do(suggester)
+    schedule.every(every_mins).minutes.do(suggester)
         
     while True:
         schedule.run_pending()

@@ -10,5 +10,17 @@
             "img_link": "<item>.*?<enclosure url=\"(.*?\\..*?)\".*?</item>",
             "pub_date": "<item>.*?<pubDate>(.*?)</pubDate>.*?</item>"
         }
+    },
+    {
+        "name": "LENTA",
+        "url": "https://lenta.ru/",
+        "rss": "https://lenta.ru/rss/",
+        "regexs": {
+            "title": "<item>.*?<title><!\\[CDATA\\[(.*?)\\]\\]></title>.*?</item>",
+            "description": "<item>.*?<description><!\\[CDATA\\[(.*?)\\]\\]></description>.*?</item>",
+            "link": "<item>.*?<link>(.*?)</link>.*?</item>",
+            "img_link": "<item>.*?<enclosure url=\"(.*?\\..*?)\".*?</item>",
+            "pub_date": "<item>.*?<pubDate>(.*?)</pubDate>.*?</item>"
+        }
     }
 ]

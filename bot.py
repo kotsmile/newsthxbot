@@ -168,10 +168,6 @@ async def process_news_command(message: types.Message):
         await pin_news()
         await message.answer('Suggest and send news')
 
-
-
-
-
 @dp.message_handler(commands=['admin'])
 async def echo_message(message: types.Message):
     await process_start_command(message)
@@ -180,6 +176,7 @@ async def echo_message(message: types.Message):
         await message.answer('ADMIN PANEL', parse_mode='markdown')
         amount_of_users = db.select_query('select count(*) from users').iloc[0][0]
         await message.answer(f'amount: {amount_of_users}', parse_mode='markdown')
+
 
 # callbacks
 
