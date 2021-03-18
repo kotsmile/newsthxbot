@@ -5,17 +5,22 @@ import datetime
 
 from config import start_work, stop_work
 
-
-if __name__ == '__main__':
+def suggester():
+    print('try to suggest news')
+    if stop_work > datetime.datetime.now().time() > start_work:
+        print('suggesting news')
+        suggest_news()
+def saver():
     print('try to add news')
     if stop_work > datetime.datetime.now().time() > start_work:
         print('adding news')
         save_news()
-        suggest_news()
-        # prod
-        schedule.every(10).minutes.do(save_news)
-        schedule.every(20).minutes.do(suggest_news)
-    
+
+if __name__ == '__main__':
+    print('Start')
+    schedule.every(10).minutes.do(saver)
+    schedule.every(20).minutes.do(suggester)
+        
     while True:
         schedule.run_pending()
         time.sleep(10)
