@@ -2,14 +2,27 @@
     {
         "name": "Meduza",
         "url": "https://meduza.io/",
-        "rss": "https://meduza.io/rss/all",
-        "regexs": {
-            "title": "<item>.*?<title><!\\[CDATA\\[(.*?)\\]\\]></title>.*?</item>",
-            "description": "<item>.*?<description><!\\[CDATA\\[(.*?)\\]\\]></description>.*?</item>",
-            "link": "<item>.*?<link>(.*?)</link>.*?</item>",
-            "img_link": "<item>.*?<enclosure url=\"(.*?\\..*?)\".*?</item>",
-            "pub_date": "<item>.*?<pubDate>(.*?)</pubDate>.*?</item>"
-        }
+        "rss": "https://meduza.io/rss2/all"
+    },
+    {
+        "name": "TJ",
+        "url": "https://tjournal.ru",
+        "rss": "https://tjournal.ru/rss/all"
+    },
+    {
+        "name": "Коммерсантъ",
+        "url": "https://www.kommersant.ru/",
+        "rss": "https://www.kommersant.ru/RSS/news.xml"
+    },
+    {
+        "name": "ТАСС",
+        "url": "https://tass.ru/",
+        "rss": "https://meduza.io/rss2/all"
+    },
+    {
+        "name": "Ведомости",
+        "url": "https://www.vedomosti.ru/",
+        "rss": "https://www.vedomosti.ru/rss/news"
     }
 
-]
+]       
