@@ -2,27 +2,32 @@
     {
         "name": "Meduza",
         "url": "https://meduza.io/",
-        "rss": "https://meduza.io/rss2/all"
+        "rss": "https://meduza.io/rss2/all",
+        "enable": true
     },
     {
         "name": "TJ",
         "url": "https://tjournal.ru",
-        "rss": "https://tjournal.ru/rss/all"
+        "rss": "https://tjournal.ru/rss/all",
+        "enable": false
     },
     {
         "name": "Коммерсантъ",
         "url": "https://www.kommersant.ru/",
-        "rss": "https://www.kommersant.ru/RSS/news.xml"
+        "rss": "https://www.kommersant.ru/RSS/news.xml",
+        "enable": false
     },
     {
         "name": "ТАСС",
         "url": "https://tass.ru/",
-        "rss": "https://meduza.io/rss2/all"
+        "rss": "https://meduza.io/rss2/all",
+        "enable": false
     },
     {
         "name": "Ведомости",
         "url": "https://www.vedomosti.ru/",
-        "rss": "https://www.vedomosti.ru/rss/news"
+        "rss": "https://www.vedomosti.ru/rss/news",
+        "enable": false
     }
 
 ]       

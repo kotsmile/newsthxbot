@@ -27,6 +27,7 @@ create table if not exists temp_news
     pub_date text
 );
 '''
+# alter table users add column integer default -1
 create_users_table_q = '''
 create table if not exists users
 (
@@ -37,7 +38,8 @@ create table if not exists users
     rated integer default 0,
     is_new integer default 1,
     is_admin integer default 0,
-    notify integer default 1
+    notify integer default 1,
+    notify_mes_id integer default -1
 );
 '''
 create_suggested_news_table_q = '''
@@ -127,6 +129,13 @@ class Database:
     
     def suggest_news(self, user_id, news_id):
         self.insert_query(f"insert into suggested_news (user_id, news_id, timestamp) values ({user_id}, {news_id}, datetime('now'))")
+
+    def get_infobar_message_id(self, user_id):
+        return self.select_query(f'select notify_mes_id from users where id = {user_id}').iloc[0][0]
+
+    def set_infobar_message_id(self, user_id, message_id):
+        self.insert_query(f'update users set notify_mes_id = {message_id} where id = {user_id}')
+
 
     def get_fresh_news_for_user(self, user_id):
         return self.select_query(f'''

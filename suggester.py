@@ -1,19 +1,18 @@
 from news import suggest_news, save_news
 import schedule
 import time
-import datetime
 import json
 
-from config import start_work, stop_work, params_path
+from config import start_work, stop_work, params_path, is_online
 
 def suggester():
     print('try to suggest news')
-    if stop_work > datetime.datetime.now().time() > start_work:
+    if is_online():
         print('suggesting news')
         suggest_news()
 def saver():
     print('try to add news')
-    if stop_work > datetime.datetime.now().time() > start_work:
+    if is_online():
         print('adding news')
         save_news()
 

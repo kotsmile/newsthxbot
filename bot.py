@@ -2,25 +2,39 @@ from aiogram import Bot, types
 from aiogram.dispatcher import Dispatcher
 from aiogram.utils import executor
 from aiogram.utils.exceptions import BotBlocked, BadRequest
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, user
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 import asyncio
 import json
 import datetime
 
 from db_manager import Database
-from config import creds_path, db_path, start_work, stop_work
+from config import creds_path, db_path, is_online
 from news import suggest_news_user, suggest_news, save_news
+from utils import InfoBar
 
 
 def load_json(path):
     with open(path, 'r') as file:
         return json.load(file)
 
+
+def gen_info_str(user_id):
+    notify_str = '🔈' if db.is_notify(user_id) else '🔇'
+    online_str = '🟢 online' if is_online() else '⚪️ offline'
+    return f'{online_str} {notify_str}'
+
 TOKEN = load_json(creds_path)['TOKEN']
 bot = Bot(token=TOKEN)
 dp = Dispatcher(bot)
 db = Database(db_path)
+
+infobar = InfoBar(
+    info_func=gen_info_str, 
+    bot=bot,
+    get=lambda key: db.get_infobar_message_id(user_id=key),
+    set=lambda key, value: db.set_infobar_message_id(user_id=key, message_id=value)
+)
 
 scores = {
     1: '😡',
@@ -31,25 +45,23 @@ scores = {
 }
 
 
-
-
-async def send_news(user_id, news_id, title, description, link, img_link, reply_keyboard=True):
+async def send_news(user_id, news_id, title, description, link, img_link):
     if db.is_notify(user_id):
         score_keyboard = InlineKeyboardMarkup(
             inline_keyboard=[[InlineKeyboardButton(smile, callback_data=f'score {score} {news_id}') for score, smile in scores.items()]]
         )
         
         try:
-            msg = await bot.send_photo(
+            await bot.send_photo(
                 user_id, 
                 img_link,
                 caption=f'\n*{title}*\n\n{description}\n\n[продолжить]({link})',
                 parse_mode='markdown',
                 reply_markup=score_keyboard
             )
-        except BotBlocked as e:
+        except BotBlocked:
             print(user_id, 'blocked me') # add to table mb
-        except BadRequest as e:
+        except BadRequest:
             print(news_id, 'bad img url')
         
 
@@ -86,11 +98,14 @@ admin_help_msg = '''\t*Вот, что я умею*
 - /help - помогу тебе
 - /notify - выключить/включить меня 
 - /news - пришлю новость специально для тебя
+- /infobar - буду писать про себя сверху
 ADMIN
 - /pin - пришлю всем свежую новость
 - /allnews - пришлю новость всем
 - /admin - сколько нас
-- /remove - удалю все новые новости'''
+- /remove - удалю все новые новости
+- /suggest - посоветовать всем новость
+- /dump -скачать новости'''
 
 # user commands
 
@@ -130,13 +145,20 @@ async def process_notify_command(message: types.Message):
         await message.answer('Теперь я буду всегда рядом 😊')
         db.set_notify(user_id, 1)
 
+    await infobar.update(message.from_user.id)
+
 @dp.message_handler(commands=['news'])
 async def process_news_command(message: types.Message):
     await process_start_command(message)
     user_id = message.from_user.id
-    save_news()
     suggest_news_user(user_id)
     await pin_news_user(user_id)
+
+@dp.message_handler(commands=['infobar'])
+async def process_notify_command(message: types.Message):
+    await process_start_command(message)
+    await infobar.create(message.from_user.id)
+    await infobar.update(message.from_user.id)
     
 
 # admin commands
@@ -163,19 +185,41 @@ async def process_news_command(message: types.Message):
     await process_start_command(message)
     user_id = message.from_user.id
     if db.is_admin(user_id):
-        save_news()
         suggest_news()
         await pin_news()
         await message.answer('Suggest and send news')
 
+@dp.message_handler(commands=['suggest'])
+async def process_news_command(message: types.Message):
+    await process_start_command(message)
+    user_id = message.from_user.id
+    if db.is_admin(user_id):
+        suggest_news()
+        await message.answer('Suggest news')
+
+@dp.message_handler(commands=['dump'])
+async def process_news_command(message: types.Message):
+    await process_start_command(message)
+    user_id = message.from_user.id
+    if db.is_admin(user_id):
+        await message.answer('dumping news')
+        save_news()
+        await message.answer('dump news')
+
 @dp.message_handler(commands=['admin'])
-async def echo_message(message: types.Message):
+async def process_admin_command(message: types.Message):
     await process_start_command(message)
     user_id = message.from_user.id
     if db.is_admin(user_id):
         await message.answer('ADMIN PANEL', parse_mode='markdown')
         amount_of_users = db.select_query('select count(*) from users').iloc[0][0]
         await message.answer(f'amount: {amount_of_users}', parse_mode='markdown')
+
+
+# @dp.message_handler(commands=['test'])
+# async def process_(message: types.Message):
+#     await infobar.update(message.from_user.id)
+    
 
 
 # callbacks
@@ -195,6 +239,7 @@ async def process_callback_score(callback_query: types.CallbackQuery):
     await bot.answer_callback_query(callback_query.id)
 
 
+
 # garbege
 
 @dp.message_handler()
@@ -206,7 +251,8 @@ async def echo_message(message: types.Message):
 async def periodic(sleep_for):
     while True:
         print('try to pin')
-        if stop_work > datetime.datetime.now().time() > start_work:
+        await infobar.update(*db.get_users()['id'])
+        if is_online():
             print('pinning')
             await pin_news()
         await asyncio.sleep(sleep_for)
@@ -215,7 +261,7 @@ if __name__ == '__main__':
 
     print('Create task')
     loop = asyncio.get_event_loop()
-    loop.create_task(periodic(60))
+    loop.create_task(periodic(5))
 
     print('Start')
     executor.start_polling(dp)
