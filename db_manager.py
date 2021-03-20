@@ -27,7 +27,7 @@ create table if not exists temp_news
     pub_date text
 );
 '''
-# alter table users add column integer default -1
+# alter table users add column notify_mes_id integer default -1
 create_users_table_q = '''
 create table if not exists users
 (

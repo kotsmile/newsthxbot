@@ -12,6 +12,7 @@ class InfoBar:
         self.set = set
     
     async def update(self, *users_id):
+        print('update')
         for user_id in users_id:
             message_id = self.get(key=user_id)
 
@@ -19,13 +20,15 @@ class InfoBar:
             try:
                 await self.bot.edit_message_text(text=info_str, chat_id=user_id, message_id=message_id)
             except (MessageCantBeEdited, MessageToEditNotFound, MessageToDeleteNotFound):
+                traceback.print_exc()
                 await self.create(user_id)
                 await self.update(user_id)
             except MessageNotModified:
                 pass
-
+    
 
     async def create(self, user_id):
+        print('create')
         info_str = self.info_func(user_id=user_id)
         await self.bot.send_message(chat_id=user_id, text='Не удаляй это сообщение 👇')
         message = await self.bot.send_message(chat_id=user_id, text=info_str)
