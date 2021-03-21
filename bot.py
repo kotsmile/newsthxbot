@@ -30,8 +30,6 @@ scores = {
 }
 
 
-
-
 async def send_news(user_id, news_id, title, description, link, img_link, reply_keyboard=True):
     if db.is_notify(user_id):
         score_keyboard = InlineKeyboardMarkup(
@@ -39,7 +37,7 @@ async def send_news(user_id, news_id, title, description, link, img_link, reply_
         )
         
         try:
-            msg = await bot.send_photo(
+            await bot.send_photo(
                 user_id, 
                 img_link,
                 caption=f'\n*{title}*\n\n{description}\n\n[продолжить]({link})',
@@ -81,15 +79,6 @@ help_msg = '''\t*Вот, что я умею*
 - /notify - выключить/включить меня 
 - /news - пришлю новость специально для тебя'''
 
-admin_help_msg = '''\t*Вот, что я умею*
-- /help - помогу тебе
-- /notify - выключить/включить меня 
-- /news - пришлю новость специально для тебя
-ADMIN
-- /pin - пришлю всем свежую новость
-- /allnews - пришлю новость всем
-- /admin - сколько нас
-- /remove - удалю все новые новости'''
 
 # user commands
 
@@ -110,12 +99,7 @@ async def process_start_command(message: types.Message):
 @dp.message_handler(commands=['help'])
 async def process_help_command(message: types.Message):
     await process_start_command(message)
-
-    user_id = message.from_user.id
-    if db.is_admin(user_id):
-        await message.answer(admin_help_msg, parse_mode='markdown')
-    else:
-        await message.answer(help_msg, parse_mode='markdown')
+    await message.answer(help_msg, parse_mode='markdown')
 
 
 @dp.message_handler(commands=['notify'])
@@ -139,33 +123,6 @@ async def process_news_command(message: types.Message):
     
 
 # admin commands
-
-@dp.message_handler(commands=['pin'])
-async def process_all_news_command(message: types.Message):
-    await process_start_command(message)
-    user_id = message.from_user.id
-    if db.is_admin(user_id):
-        await pin_news()
-        await message.answer('Send news to everybody')
-
-@dp.message_handler(commands=['remove'])
-async def process_remove_command(message: types.Message):
-    await process_start_command(message)
-
-    user_id = message.from_user.id
-    if db.is_admin(user_id):
-        db.set_all_news_seen()
-        await message.answer('Set all news "seen"')
-
-@dp.message_handler(commands=['allnews'])
-async def process_news_command(message: types.Message):
-    await process_start_command(message)
-    user_id = message.from_user.id
-    if db.is_admin(user_id):
-        save_news()
-        suggest_news()
-        await pin_news()
-        await message.answer('Suggest and send news')
 
 @dp.message_handler(commands=['admin'])
 async def echo_message(message: types.Message):
