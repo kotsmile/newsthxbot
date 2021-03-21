@@ -54,7 +54,7 @@ def suggester(news, user_id):
     return random.choice(news['id'])
 
 def suggest_news():
-    print('Suggesting')
+    print('Suggesting...')
     db = Database(db_path)
     users_df = db.get_users()
 
@@ -62,26 +62,29 @@ def suggest_news():
         user_id = row['id']
         fresh_news = db.get_fresh_news_for_user(user_id)
         if fresh_news.empty:
-            print('Done!')
+            print('Cant find news!')
             return
         news_id = suggester(fresh_news, user_id)
         db.suggest_news(user_id, news_id)
         
-    print('Done')
+    print('Suggest news')
 
 
 def suggest_news_user(user_id):
+    print('Suggesting...')
     db = Database(db_path)
     fresh_news = db.get_fresh_news_for_user(user_id)
     if fresh_news.empty:
-        print('Done!')
+        print('Cant find news!')
         return
     news_id = suggester(fresh_news, user_id)
     db.suggest_news(user_id, news_id)
+    print('Suggest news')
         
 
 def save_news():
-    print('Start dumping')
+    print('Start dumping...')
     news_df = dump_all(boards_path)
+    print(f'Dump {len(news_df)} news')
     save_to_db(news_df, db_path)
-    print('Done!')
+    print('Save news')
