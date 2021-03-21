@@ -21,14 +21,12 @@ nltk
 numpy
 pandas
 Pillow
-pkg-resources
 protobuf
 python-dateutil
 pytz
 PyYAML
 regex
 requests
-requests-file
 schedule
 sgmllib3k
 six
