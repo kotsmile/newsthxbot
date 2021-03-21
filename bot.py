@@ -226,8 +226,8 @@ async def process_test(message: types.Message):
         await bot.unpin_all_chat_messages(chat_id=user_id)
         try:
             mes_id = db.get_infobar_message_id(user_id=user_id)
-            await bot.delete_message(chat_id=user_id, message=mes_id)
-            await bot.delete_message(chat_id=user_id, message=mes_id - 1)
+            await bot.delete_message(chat_id=user_id, message_id=mes_id)
+            await bot.delete_message(chat_id=user_id, message_id=mes_id - 1)
         except Exception:
             traceback.print_exc()
     
