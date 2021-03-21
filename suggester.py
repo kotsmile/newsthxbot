@@ -19,6 +19,8 @@ def saver():
 if __name__ == '__main__':
     every_mins = json.load(open(params_path, 'r'))['every']
     print('Start')
+    saver()
+    suggester()
     schedule.every(10).minutes.do(saver)
     schedule.every(every_mins).minutes.do(suggester)
         

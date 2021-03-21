@@ -115,6 +115,7 @@ def suggest_news_user(user_id):
         return
     news_id = suggester(fresh_news, user_id)
     db.suggest_news(user_id, news_id)
+    print('Done!')
         
 
 def save_news():

@@ -30,12 +30,6 @@ bot = Bot(token=TOKEN)
 dp = Dispatcher(bot)
 db = Database(db_path)
 
-# infobar = InfoBar(
-#     info_func=gen_info_str, 
-#     bot=bot,
-#     get=lambda key: db.get_infobar_message_id(user_id=key),
-#     set=lambda key, value: db.set_infobar_message_id(user_id=key, message_id=value)
-# )
 
 scores = {
     1: '😡',
@@ -61,7 +55,7 @@ async def send_news(user_id, news_id, title, description, link, img_link):
                 reply_markup=score_keyboard
             )
         except BotBlocked:
-            print(user_id, 'blocked me') # add to table mb
+            print(user_id, 'blocked me')
         except BadRequest:
             print(news_id, 'bad img url')
         
@@ -83,11 +77,6 @@ async def pin_news():
     users_df = db.get_users()
     for user_id in users_df['id']:
         await pin_news_user(user_id)
-
-
-# async def check_user(user_id):
-#     if not db.is_exist(user_id):
-#         await bot.send_message(user_id, '''*Я тебя не знаю 😔*, давай познакомимся /start''', parse_mode='markdown')
 
 
 help_msg = '''\t*Вот, что я умею*
@@ -145,7 +134,6 @@ async def process_notify_command(message: types.Message):
         await message.answer('Теперь я буду всегда рядом 😊')
         db.set_notify(user_id, 1)
 
-    # await infobar.update(message.from_user.id)
 
 @dp.message_handler(commands=['news'])
 async def process_news_command(message: types.Message):
@@ -154,12 +142,7 @@ async def process_news_command(message: types.Message):
     suggest_news_user(user_id)
     await pin_news_user(user_id)
 
-# @dp.message_handler(commands=['infobar'])
-# async def process_notify_command(message: types.Message):
-#     await process_start_command(message)
-#     await infobar.create(message.from_user.id)
-#     await infobar.update(message.from_user.id)
-    
+
 
 # admin commands
 
@@ -217,22 +200,6 @@ async def process_admin_command(message: types.Message):
 
 
 
-# @dp.message_handler(commands=['test'])
-# async def process_test(message: types.Message):
-#     print('back')
-#     await message.reply('fff')
-#     for user_id in db.get_users()['id']:
-#         print(user_id)
-#         await bot.unpin_all_chat_messages(chat_id=user_id)
-#         try:
-#             mes_id = db.get_infobar_message_id(user_id=user_id)
-#             await bot.delete_message(chat_id=user_id, message_id=mes_id)
-#             await bot.delete_message(chat_id=user_id, message_id=mes_id - 1)
-#         except Exception:
-#             traceback.print_exc()
-    
-
-
 # callbacks
 
 @dp.callback_query_handler(lambda c: c.data.split()[0] == 'score')
@@ -262,7 +229,6 @@ async def echo_message(message: types.Message):
 async def periodic(sleep_for):
     while True:
         print('try to pin')
-        # await infobar.update(*db.get_users()['id'])
         if is_online():
             print('pinning')
             await pin_news()

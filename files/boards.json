@@ -6,12 +6,6 @@
         "enable": true
     },
     {
-        "name": "TJ",
-        "url": "https://tjournal.ru",
-        "rss": "https://tjournal.ru/rss/all",
-        "enable": false
-    },
-    {
         "name": "Коммерсантъ",
         "url": "https://www.kommersant.ru/",
         "rss": "https://www.kommersant.ru/RSS/news.xml",
@@ -20,8 +14,8 @@
     {
         "name": "ТАСС",
         "url": "https://tass.ru/",
-        "rss": "https://meduza.io/rss2/all",
-        "enable": false
+        "rss": "https://tass.ru/rss/v2.xml",
+        "enable": true
     },
     {
         "name": "Ведомости",
