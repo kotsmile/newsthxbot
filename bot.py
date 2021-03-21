@@ -6,12 +6,13 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 import asyncio
 import json
+import traceback
 import datetime
 
 from db_manager import Database
 from config import creds_path, db_path, is_online
 from news import suggest_news_user, suggest_news, save_news
-from utils import InfoBar
+# from utils import InfoBar
 
 
 def load_json(path):
@@ -29,12 +30,12 @@ bot = Bot(token=TOKEN)
 dp = Dispatcher(bot)
 db = Database(db_path)
 
-infobar = InfoBar(
-    info_func=gen_info_str, 
-    bot=bot,
-    get=lambda key: db.get_infobar_message_id(user_id=key),
-    set=lambda key, value: db.set_infobar_message_id(user_id=key, message_id=value)
-)
+# infobar = InfoBar(
+#     info_func=gen_info_str, 
+#     bot=bot,
+#     get=lambda key: db.get_infobar_message_id(user_id=key),
+#     set=lambda key, value: db.set_infobar_message_id(user_id=key, message_id=value)
+# )
 
 scores = {
     1: '😡',
@@ -98,7 +99,6 @@ admin_help_msg = '''\t*Вот, что я умею*
 - /help - помогу тебе
 - /notify - выключить/включить меня 
 - /news - пришлю новость специально для тебя
-- /infobar - буду писать про себя сверху
 ADMIN
 - /pin - пришлю всем свежую новость
 - /allnews - пришлю новость всем
@@ -145,7 +145,7 @@ async def process_notify_command(message: types.Message):
         await message.answer('Теперь я буду всегда рядом 😊')
         db.set_notify(user_id, 1)
 
-    await infobar.update(message.from_user.id)
+    # await infobar.update(message.from_user.id)
 
 @dp.message_handler(commands=['news'])
 async def process_news_command(message: types.Message):
@@ -154,11 +154,11 @@ async def process_news_command(message: types.Message):
     suggest_news_user(user_id)
     await pin_news_user(user_id)
 
-@dp.message_handler(commands=['infobar'])
-async def process_notify_command(message: types.Message):
-    await process_start_command(message)
-    await infobar.create(message.from_user.id)
-    await infobar.update(message.from_user.id)
+# @dp.message_handler(commands=['infobar'])
+# async def process_notify_command(message: types.Message):
+#     await process_start_command(message)
+#     await infobar.create(message.from_user.id)
+#     await infobar.update(message.from_user.id)
     
 
 # admin commands
@@ -216,9 +216,20 @@ async def process_admin_command(message: types.Message):
         await message.answer(f'amount: {amount_of_users}', parse_mode='markdown')
 
 
-# @dp.message_handler(commands=['test'])
-# async def process_(message: types.Message):
-#     await infobar.update(message.from_user.id)
+
+@dp.message_handler(commands=['test'])
+async def process_test(message: types.Message):
+    print('back')
+    await message.reply('fff')
+    for user_id in db.get_users()['id']:
+        print(user_id)
+        await bot.unpin_all_chat_messages(chat_id=user_id)
+        try:
+            mes_id = db.get_infobar_message_id(user_id=user_id)
+            await bot.delete_message(chat_id=user_id, message=mes_id)
+            await bot.delete_message(chat_id=user_id, message=mes_id - 1)
+        except Exception:
+            traceback.print_exc()
     
 
 
@@ -251,11 +262,13 @@ async def echo_message(message: types.Message):
 async def periodic(sleep_for):
     while True:
         print('try to pin')
-        await infobar.update(*db.get_users()['id'])
+        # await infobar.update(*db.get_users()['id'])
         if is_online():
             print('pinning')
             await pin_news()
         await asyncio.sleep(sleep_for)
+
+
 
 if __name__ == '__main__':
 
@@ -264,4 +277,5 @@ if __name__ == '__main__':
     loop.create_task(periodic(5))
 
     print('Start')
+
     executor.start_polling(dp)
