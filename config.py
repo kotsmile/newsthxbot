@@ -1,7 +1,7 @@
-import os, sys
 import datetime
 import json
-import datetime
+import os
+import sys
 
 boards_path = os.path.join(sys.path[0], 'files/boards.json')
 creds_path = os.path.join(sys.path[0], 'files/creds.json')
@@ -10,5 +10,8 @@ db_path = os.path.join(sys.path[0], 'db/newsthx.db')
 
 # add auto time zone
 
-start_work = datetime.datetime.strptime(json.load(open(params_path, 'r'))['start'], '%H:%M:%S').time()
-stop_work = datetime.datetime.strptime(json.load(open(params_path, 'r'))['stop'], '%H:%M:%S').time()
+def is_online():
+    start_work = datetime.datetime.strptime(json.load(open(params_path, 'r'))['start'], '%H:%M:%S %z').time()
+    stop_work = datetime.datetime.strptime(json.load(open(params_path, 'r'))['stop'], '%H:%M:%S %z').time()
+    print(stop_work > datetime.datetime.now().time() > start_work)
+    return stop_work > datetime.datetime.now().time() > start_work

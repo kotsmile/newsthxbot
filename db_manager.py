@@ -1,7 +1,6 @@
 import sqlite3
-import pandas as pd
 
-from config import db_path
+import pandas as pd
 
 create_news_table_q = '''
 create table if not exists  news

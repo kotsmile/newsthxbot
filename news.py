@@ -1,12 +1,13 @@
-import re
 import json
-
-import requests
-import pandas as pd
 import random
+import re
 
-from db_manager import Database
+import pandas as pd
+import requests
+
 from config import boards_path, db_path
+from db_manager import Database
+
 
 def load_json(path):
     with open(path, 'r') as file:

@@ -1,16 +1,15 @@
-from aiogram import Bot, types
-from aiogram.dispatcher import Dispatcher
-from aiogram.utils import executor
-from aiogram.utils.exceptions import BotBlocked, BadRequest
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, user
-
 import asyncio
 import json
-import datetime
 
+from aiogram import Bot, types
+from aiogram.dispatcher import Dispatcher
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, user
+from aiogram.utils import executor
+from aiogram.utils.exceptions import BadRequest, BotBlocked
+
+from config import creds_path, db_path, is_online
 from db_manager import Database
-from config import creds_path, db_path, start_work, stop_work
-from news import suggest_news_user, suggest_news, save_news
+from news import save_news, suggest_news, suggest_news_user
 
 
 def load_json(path):
@@ -206,7 +205,7 @@ async def echo_message(message: types.Message):
 async def periodic(sleep_for):
     while True:
         print('try to pin')
-        if stop_work > datetime.datetime.now().time() > start_work:
+        if is_online():
             print('pinning')
             await pin_news()
         await asyncio.sleep(sleep_for)
